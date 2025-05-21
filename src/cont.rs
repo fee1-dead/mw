@@ -2,7 +2,6 @@ use std::pin::Pin;
 use std::task::{Context, Poll};
 
 use futures_util::Stream;
-use futures_util::future::BoxFuture;
 
 use reqwest::RequestBuilder;
 use serde::Deserialize;
@@ -10,6 +9,12 @@ use serde::de::DeserializeOwned;
 use serde_json::{Map, Value};
 
 use crate::{Client, Params, Result};
+
+#[cfg(not(target_arch = "wasm32"))]
+use futures_util::future::BoxFuture;
+
+#[cfg(target_arch = "wasm32")]
+type BoxFuture<'a, T> = Pin<Box<dyn Future<Output = T> + 'a>>;
 
 pub type ResponseFuture<R> = BoxFuture<'static, crate::Result<MaybeContinue<R>>>;
 

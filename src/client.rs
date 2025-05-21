@@ -46,12 +46,19 @@ impl ClientBuilder {
         {
             client = client.cookie_store(cookies).user_agent(ua);
         }
+        #[cfg(target_arch = "wasm32")]
+        {
+            // https://github.com/seanmonstar/reqwest/pull/1449
+            assert!(!cookies, "reqwest on wasm does not have cookies support yet");
+        }
         let headers = HeaderMap::new();
 
-        /* TODO #[cfg(target_arch = "wasm32")]
-        {
-            headers.insert("Api-User-Agent", HeaderValue::from_str(ua)?);
-        } */
+        #[cfg(target_arch = "wasm32")]
+        let headers = {
+            let mut headers_new = headers;
+            headers_new.insert("Api-User-Agent", HeaderValue::from_str(ua)?);
+            headers_new
+        };
 
         let headers = extra_headers(headers)?;
         client = client.default_headers(headers);
