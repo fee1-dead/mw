@@ -9,6 +9,7 @@ use serde::{Deserialize, Serialize, Serializer};
 
 use crate::Result;
 
+/// A builder that configures the API client.
 pub struct ClientBuilder {
     url: String,
     ua: Option<Cow<'static, str>>,
@@ -16,6 +17,7 @@ pub struct ClientBuilder {
 }
 
 impl ClientBuilder {
+    /// Create a builder with the following URL
     pub fn new(url: impl Into<String>) -> ClientBuilder {
         ClientBuilder {
             url: url.into(),
@@ -111,15 +113,17 @@ pub struct ClientRef<'a> {
 }
 
 impl ClientRef<'_> {
+    /// Send a GET request using the standard parameters.
     pub fn get(&self, params: impl Params) -> reqwest::RequestBuilder {
         self.client.get(self.url).query(&Standard(params))
     }
 
+    /// Send a POST request using the standard parameters.
     pub fn post(&self, params: impl Params) -> reqwest::RequestBuilder {
         self.client.post(self.url).form(&Standard(params))
     }
 
-    /// Returns the user name this bot is logged in as.
+    /// Verify that the bot is logged in, and returns the user name this bot is logged in as.
     pub async fn verify_logged_in(&self) -> crate::Result<String> {
         #[derive(Deserialize)]
         struct Response {
@@ -148,10 +152,12 @@ impl ClientRef<'_> {
         Ok(name)
     }
 
+    /// Get a token with the given name.
     pub async fn get_token(&self, token: impl AsRef<str>) -> reqwest::Result<String> {
         Ok(self.get_tokens([token]).await?.pop().unwrap())
     }
 
+    /// Get multiple tokens with the given names.
     pub async fn get_tokens(
         &self,
         tokens: impl IntoIterator<Item = impl AsRef<str>>,
@@ -191,6 +197,7 @@ pub struct Client {
     url: String,
 }
 
+/// Types that can be used as parameters to MediaWiki Action API requests.
 pub trait Params {
     fn len(&self) -> usize;
     fn serialize_into<S: SerializeSeq>(&self, seq: &mut S) -> Result<(), S::Error>;
