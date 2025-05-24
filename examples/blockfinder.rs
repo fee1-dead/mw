@@ -35,7 +35,6 @@ async fn main() -> color_eyre::Result<()> {
         let u = format!("User:{user}");
         let client = client.clone();
         let semaphore = semaphore.clone();
-        
 
         futures.push(tokio::spawn(async move {
             let s = semaphore.acquire().await.unwrap();
@@ -48,10 +47,13 @@ async fn main() -> color_eyre::Result<()> {
                     ("letitle", &u),
                 ])
                 .send()
-                .await.unwrap()
-                .error_for_status().unwrap()
+                .await
+                .unwrap()
+                .error_for_status()
+                .unwrap()
                 .json::<serde_json::Value>()
-                .await.unwrap();
+                .await
+                .unwrap();
 
             drop(s);
 

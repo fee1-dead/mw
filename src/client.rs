@@ -51,7 +51,10 @@ impl ClientBuilder {
         #[cfg(target_arch = "wasm32")]
         {
             // https://github.com/seanmonstar/reqwest/pull/1449
-            assert!(!cookies, "reqwest on wasm does not have cookies support yet");
+            assert!(
+                !cookies,
+                "reqwest on wasm does not have cookies support yet"
+            );
         }
         let headers = HeaderMap::new();
 
@@ -252,12 +255,14 @@ impl Client {
     pub fn inner(&self) -> &reqwest::Client {
         &self.inner
     }
+
     pub fn with_url<'a>(&'a self, url: &'a str) -> ClientRef<'a> {
         ClientRef {
             client: &self.inner,
             url,
         }
     }
+
     pub fn get(&self, params: impl Params) -> reqwest::RequestBuilder {
         self.with_url(&self.url).get(params)
     }
